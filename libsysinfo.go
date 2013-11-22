@@ -9,11 +9,12 @@ const ()
 
 var (
 	cacheKeys = map[string]string{
-		"HOSTNAME_FULL":      "fullhostname",
-		"HOSTNAME":           "hostname",
-		"DOMAIN_NAME":        "domainname",
-		"LSB_FULL":           "lsbfull",
-		"LSB_DIST_CODE_NAME": "lsbdistcodename",
+		"HOSTNAME_FULL":        "fullhostname",
+		"HOSTNAME":             "hostname",
+		"DOMAIN_NAME":          "domainname",
+		"LSB_FULL":             "lsbfull",
+		"LSB_DIST_CODE_NAME":   "lsbdistcodename",
+		"LSB_DIST_DESCRIPTION": "lsbdistdescrption",
 	}
 
 	globalCache = NewCachedValues(len(cacheKeys))
@@ -58,6 +59,10 @@ func Fqdn() (string, error) {
 
 func LsbDistCodeName() (string, error) {
 	return lsbDist("LSB_DIST_CODE_NAME", "Codename")
+}
+
+func LsbDistDescription() (string, error) {
+	return lsbDist("LSB_DIST_DESCRIPTION", "Description")
 }
 
 func lsbDist(k string, lsbItem string) (string, error) {
