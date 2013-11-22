@@ -39,6 +39,21 @@ func Domain() (string, error) {
 	return llv.run()
 }
 
+func Fqdn() (string, error) {
+	fqdn := func(fullHostname string) (string, error) {
+		return fullHostname, nil
+	}
+
+	llv := &lazyLoadedValue{
+		CacheKey:    cacheKeys["FQDN"],
+		Fetcher:     getFullHostname,
+		Processor:   fqdn,
+		CacheBucket: globalCache,
+	}
+
+	return llv.run()
+}
+
 func processDomainName(fullHostname string) (string, error) {
 	pos := strings.Index(fullHostname, ".")
 	if pos == -1 {
