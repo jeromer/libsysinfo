@@ -57,14 +57,18 @@ func Fqdn() (string, error) {
 }
 
 func LsbDistCodeName() (string, error) {
-	return lsbDist("LSB_DIST_CODE_NAME", processLsbRelease)
+	return lsbDist("LSB_DIST_CODE_NAME", "Codename")
 }
 
-func lsbDist(k string, procFunc processor) (string, error) {
+func lsbDist(k string, lsbItem string) (string, error) {
+	proc := func(lsb string) (string, error) {
+		return processLsbItem(lsb, lsbItem)
+	}
+
 	llv := &lazyLoadedValue{
 		CacheKey:    cacheKeys[k],
 		Fetcher:     getLsbRelease,
-		Processor:   procFunc,
+		Processor:   proc,
 		CacheBucket: globalCache,
 	}
 
@@ -89,21 +93,20 @@ func processHostname(fullHostname string) (string, error) {
 	return fullHostname[:pos], nil
 }
 
-func processLsbRelease(lsb string) (string, error) {
+func processLsbItem(lsb string, item string) (string, error) {
 	var out string
+	var tmp string
+
 	for _, line := range strings.Split(lsb, "\n") {
 		if len(line) <= 0 {
 			continue
 		}
 
-		// C => Codename
-		if line[0] != 'C' {
-			continue
+		tmp = line[0:len(item)]
+		if tmp == item {
+			out = strings.TrimSpace(strings.TrimLeft(line, item+":"))
+			break
 		}
-
-		out = strings.TrimSpace(strings.TrimLeft(line, "Codename:"))
-
-		break
 	}
 
 	return strings.ToLower(out), nil
