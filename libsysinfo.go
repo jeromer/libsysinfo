@@ -16,6 +16,7 @@ var (
 		"LSB_DIST_CODE_NAME":   "lsbdistcodename",
 		"LSB_DIST_DESCRIPTION": "lsbdistdescrption",
 		"LSB_DIST_ID":          "lsbdistid",
+		"LSB_DIST_RELEASE":     "lsbdistrelease",
 	}
 
 	globalCache = NewCachedValues(len(cacheKeys))
@@ -68,6 +69,10 @@ func LsbDistDescription() (string, error) {
 
 func LsbDistId() (string, error) {
 	return lsbDist("LSB_DIST_ID", "Distributor ID")
+}
+
+func LsbDistRelease() (string, error) {
+	return lsbDist("LSB_DIST_RELEASE", "Release")
 }
 
 func lsbDist(k string, lsbItem string) (string, error) {
