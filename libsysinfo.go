@@ -11,6 +11,7 @@ var (
 	cacheKeys = map[string]string{
 		"HOSTNAME_FULL": "fullhostname",
 		"HOSTNAME":      "hostname",
+		"DOMAIN_NAME":   "domainname",
 	}
 
 	globalCache = NewCachedValues(len(cacheKeys))
@@ -25,6 +26,26 @@ func Hostname() (string, error) {
 	}
 
 	return llv.run()
+}
+
+func Domain() (string, error) {
+	llv := &lazyLoadedValue{
+		CacheKey:    cacheKeys["DOMAIN_NAME"],
+		Fetcher:     getFullHostname,
+		Processor:   processDomainName,
+		CacheBucket: globalCache,
+	}
+
+	return llv.run()
+}
+
+func processDomainName(fullHostname string) (string, error) {
+	pos := strings.Index(fullHostname, ".")
+	if pos == -1 {
+		return "", nil
+	}
+
+	return fullHostname[pos+1:], nil
 }
 
 func processHostname(fullHostname string) (string, error) {
