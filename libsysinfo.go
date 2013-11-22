@@ -9,9 +9,11 @@ const ()
 
 var (
 	cacheKeys = map[string]string{
-		"HOSTNAME_FULL": "fullhostname",
-		"HOSTNAME":      "hostname",
-		"DOMAIN_NAME":   "domainname",
+		"HOSTNAME_FULL":      "fullhostname",
+		"HOSTNAME":           "hostname",
+		"DOMAIN_NAME":        "domainname",
+		"LSB_FULL":           "lsbfull",
+		"LSB_DIST_CODE_NAME": "lsbdistcodename",
 	}
 
 	globalCache = NewCachedValues(len(cacheKeys))
@@ -54,6 +56,21 @@ func Fqdn() (string, error) {
 	return llv.run()
 }
 
+func LsbDistCodeName() (string, error) {
+	return lsbDist("LSB_DIST_CODE_NAME", processLsbRelease)
+}
+
+func lsbDist(k string, procFunc processor) (string, error) {
+	llv := &lazyLoadedValue{
+		CacheKey:    cacheKeys[k],
+		Fetcher:     getLsbRelease,
+		Processor:   procFunc,
+		CacheBucket: globalCache,
+	}
+
+	return llv.run()
+}
+
 func processDomainName(fullHostname string) (string, error) {
 	pos := strings.Index(fullHostname, ".")
 	if pos == -1 {
@@ -70,6 +87,26 @@ func processHostname(fullHostname string) (string, error) {
 	}
 
 	return fullHostname[:pos], nil
+}
+
+func processLsbRelease(lsb string) (string, error) {
+	var out string
+	for _, line := range strings.Split(lsb, "\n") {
+		if len(line) <= 0 {
+			continue
+		}
+
+		// C => Codename
+		if line[0] != 'C' {
+			continue
+		}
+
+		out = strings.TrimSpace(strings.TrimLeft(line, "Codename:"))
+
+		break
+	}
+
+	return strings.ToLower(out), nil
 }
 
 func getFullHostname() (string, error) {
@@ -96,4 +133,24 @@ func getFullHostname() (string, error) {
 	globalCache.Set(cacheKey, hf)
 
 	return hf, nil
+}
+
+func getLsbRelease() (string, error) {
+	cacheKey := cacheKeys["LSB_FULL"]
+
+	lsb, exists := globalCache.Exists(cacheKey)
+	if exists {
+		return lsb, nil
+	}
+
+	out, err := exec.Command("lsb_release", "-a").Output()
+	if err != nil {
+		return string(out), err
+	}
+
+	lsb = string(out)
+
+	globalCache.Set(cacheKey, lsb)
+
+	return lsb, nil
 }
