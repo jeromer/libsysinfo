@@ -18,6 +18,7 @@ var (
 		"LSB_DIST_DESCRIPTION": "lsbdistdescrption",
 		"LSB_DIST_ID":          "lsbdistid",
 		"LSB_DIST_RELEASE":     "lsbdistrelease",
+		"HOST_ID":              "hostid",
 	}
 
 	globalCache = newCachedValues(len(cacheKeys))
@@ -74,6 +75,21 @@ func LsbDistId() (string, error) {
 
 func LsbDistRelease() (string, error) {
 	return lsbDist("LSB_DIST_RELEASE", "Release")
+}
+
+func HostId() (string, error) {
+	proc := func(hostId string) (string, error) {
+		return strings.Trim(hostId, "\n"), nil
+	}
+
+	llv := &lazyLoadedValue{
+		CacheKey:    cacheKeys["HOST_ID"],
+		Fetcher:     getHostId,
+		Processor:   proc,
+		CacheBucket: globalCache,
+	}
+
+	return llv.run()
 }
 
 func lsbDist(k string, lsbItem string) (string, error) {
@@ -172,4 +188,14 @@ func getLsbRelease() (string, error) {
 	globalCache.Set(cacheKey, lsb)
 
 	return lsb, nil
+}
+
+func getHostId() (string, error) {
+	// XXX : hostid will not be reused, no need to cache the full output
+	out, err := exec.Command("hostid").Output()
+	if err != nil {
+		return string(out), err
+	}
+
+	return string(out), nil
 }
