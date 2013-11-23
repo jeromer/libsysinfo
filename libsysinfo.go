@@ -61,20 +61,34 @@ func Fqdn() (string, error) {
 	return llv.run()
 }
 
-func LsbDistCodeName() (string, error) {
-	return lsbDist("LSB_DIST_CODE_NAME", "Codename")
-}
+func LsbRelease() (map[string]string, error) {
+	items := make(map[string]string, 4)
 
-func LsbDistDescription() (string, error) {
-	return lsbDist("LSB_DIST_DESCRIPTION", "Description")
-}
+	v, err := lsbReleaseItem("LSB_DIST_CODE_NAME", "Codename")
+	if err != nil {
+		return items, err
+	}
+	items["codename"] = v
 
-func LsbDistId() (string, error) {
-	return lsbDist("LSB_DIST_ID", "Distributor ID")
-}
+	v, err = lsbReleaseItem("LSB_DIST_DESCRIPTION", "Description")
+	if err != nil {
+		return items, err
+	}
+	items["description"] = v
 
-func LsbDistRelease() (string, error) {
-	return lsbDist("LSB_DIST_RELEASE", "Release")
+	v, err = lsbReleaseItem("LSB_DIST_ID", "Distributor ID")
+	if err != nil {
+		return items, err
+	}
+	items["distributorid"] = v
+
+	v, err = lsbReleaseItem("LSB_DIST_RELEASE", "Release")
+	if err != nil {
+		return items, err
+	}
+	items["release"] = v
+
+	return items, nil
 }
 
 func HostId() (string, error) {
@@ -92,7 +106,7 @@ func HostId() (string, error) {
 	return llv.run()
 }
 
-func lsbDist(k string, lsbItem string) (string, error) {
+func lsbReleaseItem(k string, lsbItem string) (string, error) {
 	proc := func(lsb string) (string, error) {
 		return processLsbItem(lsb, lsbItem)
 	}
