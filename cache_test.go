@@ -18,7 +18,7 @@ var (
 )
 
 func (s *CacheTestSuite) TestSet(c *C) {
-	set := NewCachedValues(1)
+	set := newCachedValues(1)
 
 	set.Set(key, val)
 
@@ -28,7 +28,7 @@ func (s *CacheTestSuite) TestSet(c *C) {
 }
 
 func (s *CacheTestSuite) TestExists(c *C) {
-	set := NewCachedValues(1)
+	set := newCachedValues(1)
 
 	v, e := set.Exists(key)
 	c.Assert(v, Equals, "")
@@ -42,7 +42,7 @@ func (s *CacheTestSuite) TestExists(c *C) {
 }
 
 func (s *CacheTestSuite) TestGet(c *C) {
-	set := NewCachedValues(1)
+	set := newCachedValues(1)
 
 	set.Set(key, val)
 
@@ -51,7 +51,7 @@ func (s *CacheTestSuite) TestGet(c *C) {
 }
 
 func (s *CacheTestSuite) TestDelete(c *C) {
-	set := NewCachedValues(1)
+	set := newCachedValues(1)
 
 	set.Set(key, val)
 	c.Assert(len(set.All()), Equals, 1)
@@ -61,7 +61,7 @@ func (s *CacheTestSuite) TestDelete(c *C) {
 }
 
 func (s *CacheTestSuite) TestEmpty(c *C) {
-	set := NewCachedValues(1)
+	set := newCachedValues(1)
 
 	set.Set(key, val)
 

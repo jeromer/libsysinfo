@@ -5,7 +5,7 @@ import (
 )
 
 type LazyLoaderTestSuite struct {
-	cv *CachedValues
+	cv *cachedValues
 }
 
 var (
@@ -15,7 +15,7 @@ var (
 )
 
 func (s *LazyLoaderTestSuite) SetUpTest(c *C) {
-	s.cv = NewCachedValues(10)
+	s.cv = newCachedValues(10)
 }
 
 func (s *LazyLoaderTestSuite) TearDownTest(c *C) {

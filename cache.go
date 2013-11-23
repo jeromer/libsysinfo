@@ -4,24 +4,24 @@ import (
 	"sync"
 )
 
-type CachedValues struct {
+type cachedValues struct {
 	set map[string]string
 	mu  sync.RWMutex
 }
 
-func NewCachedValues(l int) *CachedValues {
-	return &CachedValues{
+func newCachedValues(l int) *cachedValues {
+	return &cachedValues{
 		set: make(map[string]string, l),
 	}
 }
 
-func (s *CachedValues) Set(k string, v string) {
+func (s *cachedValues) Set(k string, v string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.set[k] = v
 }
 
-func (s *CachedValues) Get(k string) string {
+func (s *cachedValues) Get(k string) string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -29,13 +29,13 @@ func (s *CachedValues) Get(k string) string {
 	return sess
 }
 
-func (s *CachedValues) Delete(k string) {
+func (s *cachedValues) Delete(k string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.set, k)
 }
 
-func (s *CachedValues) Exists(k string) (string, bool) {
+func (s *cachedValues) Exists(k string) (string, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -43,13 +43,13 @@ func (s *CachedValues) Exists(k string) (string, bool) {
 	return v, present
 }
 
-func (s *CachedValues) All() map[string]string {
+func (s *cachedValues) All() map[string]string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.set
 }
 
-func (s *CachedValues) Empty() {
+func (s *cachedValues) Empty() {
 	for k, _ := range s.All() {
 		s.Delete(k)
 	}

@@ -7,7 +7,7 @@ type lazyLoadedValue struct {
 	CacheKey    string
 	Fetcher     fetcher
 	Processor   processor
-	CacheBucket *CachedValues
+	CacheBucket *cachedValues
 }
 
 func (llv *lazyLoadedValue) run() (string, error) {

@@ -19,7 +19,7 @@ var (
 		"LSB_DIST_RELEASE":     "lsbdistrelease",
 	}
 
-	globalCache = NewCachedValues(len(cacheKeys))
+	globalCache = newCachedValues(len(cacheKeys))
 )
 
 func Hostname() (string, error) {
