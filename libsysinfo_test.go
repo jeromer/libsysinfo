@@ -53,3 +53,21 @@ func (s *LibSysInfoTestSuite) TestProcessHostId(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(obtained, Equals, id)
 }
+
+func (s *LibSysInfoTestSuite) TestProcessFileSystems(c *C) {
+	fixture := `
+
+nodev	mqueue
+	ext3
+	ext2
+nodev	rpc_pipefs
+nodev	nfs
+nodev	nfs4
+nodev	nfsd
+nodev	vboxsf
+
+	`
+	expected := []string{"ext3", "ext2"}
+	obtained := processFileSystems(fixture)
+	c.Assert(obtained, DeepEquals, expected)
+}

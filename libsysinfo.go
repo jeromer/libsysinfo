@@ -3,6 +3,7 @@
 package libsysinfo
 
 import (
+	"io/ioutil"
 	"os/exec"
 	"strings"
 )
@@ -20,9 +21,11 @@ var (
 		"LSB_DIST_ID":          "lsbdistid",
 		"LSB_DIST_RELEASE":     "lsbdistrelease",
 		"HOST_ID":              "hostid",
+		"FILE_SYSTEMS":         "filesystems",
 	}
 
-	globalCache = newCachedValues(len(cacheKeys))
+	globalCache     = newCachedValues(len(cacheKeys))
+	fileSystemCache []string
 
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 )
@@ -113,6 +116,19 @@ func HostId() (string, error) {
 	return llv.run()
 }
 
+func FileSystems() ([]string, error) {
+	if len(fileSystemCache) > 0 {
+		return fileSystemCache, nil
+	}
+
+	buff, err := getFileSystems()
+	if err != nil {
+		return fileSystemCache, err
+	}
+
+	return processFileSystems(buff), nil
+}
+
 func lsbReleaseItem(k string, lsbItem string) (string, error) {
 	proc := func(lsb string) (string, error) {
 		return processLsbItem(lsb, lsbItem)
@@ -169,6 +185,28 @@ func processHostId(id string) (string, error) {
 	return strings.Trim(id, "\n"), nil
 }
 
+func processFileSystems(buff string) []string {
+	var tmp string
+	var fileSystems []string
+	var isNodev bool
+
+	for _, line := range strings.Split(buff, "\n") {
+		isNodev = len(line) <= 0 || line[0] == 'n'
+		if isNodev {
+			continue
+		}
+
+		tmp = strings.TrimSpace(line)
+		if len(tmp) <= 0 {
+			continue
+		}
+
+		fileSystems = append(fileSystems, tmp)
+	}
+
+	return fileSystems
+}
+
 func getFullHostname() (string, error) {
 	cacheKey := cacheKeys["HOSTNAME_FULL"]
 
@@ -223,4 +261,13 @@ func getHostId() (string, error) {
 	}
 
 	return string(out), nil
+}
+
+func getFileSystems() (string, error) {
+	buff, err := ioutil.ReadFile("/proc/filesystems")
+	if err != nil {
+		return "", nil
+	}
+
+	return string(buff), nil
 }
