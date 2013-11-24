@@ -30,6 +30,13 @@ var (
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 )
 
+type LsbReleaseInfo struct {
+	Codename      string
+	Description   string
+	DistributorId string
+	Release       string
+}
+
 type LibSysInfoErr struct {
 	Msg string
 }
@@ -75,34 +82,34 @@ func Fqdn() (string, error) {
 	return llv.run()
 }
 
-func LsbRelease() (map[string]string, error) {
-	items := make(map[string]string, 4)
+func LsbRelease() (LsbReleaseInfo, error) {
+	var lsbr LsbReleaseInfo
 
 	v, err := lsbReleaseItem("LSB_DIST_CODE_NAME", "Codename")
 	if err != nil {
-		return items, err
+		return lsbr, err
 	}
-	items["codename"] = v
+	lsbr.Codename = v
 
 	v, err = lsbReleaseItem("LSB_DIST_DESCRIPTION", "Description")
 	if err != nil {
-		return items, err
+		return lsbr, err
 	}
-	items["description"] = v
+	lsbr.Description = v
 
 	v, err = lsbReleaseItem("LSB_DIST_ID", "Distributor ID")
 	if err != nil {
-		return items, err
+		return lsbr, err
 	}
-	items["distributorid"] = v
+	lsbr.DistributorId = v
 
 	v, err = lsbReleaseItem("LSB_DIST_RELEASE", "Release")
 	if err != nil {
-		return items, err
+		return lsbr, err
 	}
-	items["release"] = v
+	lsbr.Release = v
 
-	return items, nil
+	return lsbr, nil
 }
 
 func HostId() (string, error) {
