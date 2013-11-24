@@ -22,7 +22,17 @@ var (
 	}
 
 	globalCache = newCachedValues(len(cacheKeys))
+
+	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 )
+
+type LibSysInfoErr struct {
+	Msg string
+}
+
+func (e LibSysInfoErr) Error() string {
+	return e.Msg
+}
 
 func Hostname() (string, error) {
 	llv := &lazyLoadedValue{
@@ -92,14 +102,10 @@ func LsbRelease() (map[string]string, error) {
 }
 
 func HostId() (string, error) {
-	proc := func(hostId string) (string, error) {
-		return strings.Trim(hostId, "\n"), nil
-	}
-
 	llv := &lazyLoadedValue{
 		CacheKey:    cacheKeys["HOST_ID"],
 		Fetcher:     getHostId,
-		Processor:   proc,
+		Processor:   processHostId,
 		CacheBucket: globalCache,
 	}
 
@@ -124,7 +130,7 @@ func lsbReleaseItem(k string, lsbItem string) (string, error) {
 func processDomainName(fullHostname string) (string, error) {
 	pos := strings.Index(fullHostname, ".")
 	if pos == -1 {
-		return "", nil
+		return "", ErrDomainNameNotFound
 	}
 
 	return fullHostname[pos+1:], nil
@@ -156,6 +162,10 @@ func processLsbItem(lsb string, item string) (string, error) {
 	}
 
 	return strings.ToLower(out), nil
+}
+
+func processHostId(id string) (string, error) {
+	return strings.Trim(id, "\n"), nil
 }
 
 func getFullHostname() (string, error) {
