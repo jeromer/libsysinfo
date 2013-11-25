@@ -26,9 +26,37 @@ var (
 
 	globalCache     = newCachedValues(len(cacheKeys))
 	fileSystemCache []string
+	cpuInfoCache    []CpuInfo
 
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 )
+
+type CpuInfo struct {
+	Processor      string
+	VendorId       string
+	CpuFamily      string
+	Model          string
+	ModelName      string
+	Stepping       string
+	CPUMHz         string
+	CacheSize      string
+	CacheSizeUnit  string
+	PhysicalId     string
+	Siblings       string
+	CoreId         string
+	CpuCores       string
+	ApicId         string
+	InitialApicId  string
+	Fpu            string
+	FpuException   string
+	CpuIdLevel     string
+	Wp             string
+	Flags          []string
+	Bogomips       string
+	ClflushSize    string
+	CacheAlignment string
+	AddressSizes   string
+}
 
 type LsbReleaseInfo struct {
 	Codename      string
@@ -136,6 +164,19 @@ func FileSystems() ([]string, error) {
 	return processFileSystems(buff), nil
 }
 
+func CpuInfos() ([]CpuInfo, error) {
+	if len(cpuInfoCache) > 0 {
+		return cpuInfoCache, nil
+	}
+
+	buff, err := getCpuInfos()
+	if err != nil {
+		return []CpuInfo(nil), err
+	}
+
+	return processCpuInfos(buff), nil
+}
+
 func lsbReleaseItem(k string, lsbItem string) (string, error) {
 	proc := func(lsb string) (string, error) {
 		return processLsbItem(lsb, lsbItem)
@@ -214,6 +255,93 @@ func processFileSystems(buff string) []string {
 	return fileSystems
 }
 
+func processCpuInfos(buff string) []CpuInfo {
+	var parts []string
+	var k, v string
+	var cpuInfos []CpuInfo
+	var tmp CpuInfo
+
+	lines := strings.Split(buff, "\n")
+	lineCount := len(lines)
+
+	for i, line := range lines {
+		if line == "" {
+			// extra empty lines means end of file
+			if i+1 == lineCount {
+				break
+			}
+
+			cpuInfos = append(cpuInfos, tmp)
+			tmp = CpuInfo{}
+			continue
+		}
+
+		parts = strings.Split(line, ":")
+		if len(parts) == 2 {
+			k = strings.ToLower(strings.TrimSpace(parts[0]))
+			v = strings.TrimSpace(parts[1])
+			if v == "" {
+				continue
+			}
+
+			switch k {
+			case "processor":
+				tmp.Processor = v
+			case "vendor_id":
+				tmp.VendorId = v
+			case "cpu family":
+				tmp.CpuFamily = v
+			case "model":
+				tmp.Model = v
+			case "model name":
+				tmp.ModelName = v
+			case "stepping":
+				tmp.Stepping = v
+			case "cpu mhz":
+				tmp.CPUMHz = v
+			case "cache size":
+				cacheSize := strings.Split(v, " ")
+				tmp.CacheSize = cacheSize[0]
+				tmp.CacheSizeUnit = cacheSize[1]
+			case "physical id":
+				tmp.PhysicalId = v
+			case "siblings":
+				tmp.Siblings = v
+			case "core id":
+				tmp.CoreId = v
+			case "cpu cores":
+				tmp.CpuCores = v
+			case "apicid":
+				tmp.ApicId = v
+			case "initial apicid":
+				tmp.InitialApicId = v
+			case "fpu":
+				tmp.Fpu = v
+			case "fpu_exception":
+				tmp.FpuException = v
+			case "cpuid level":
+				tmp.CpuIdLevel = v
+			case "wp":
+				tmp.Wp = v
+			case "flags":
+				tmp.Flags = strings.Split(v, " ")
+			case "bogomips":
+				tmp.Bogomips = v
+			case "clflush size":
+				tmp.ClflushSize = v
+			case "cache_alignment":
+				tmp.CacheAlignment = v
+			case "address sizes":
+				tmp.AddressSizes = v
+			default:
+				continue
+			}
+		}
+	}
+
+	return cpuInfos
+}
+
 func getFullHostname() (string, error) {
 	cacheKey := cacheKeys["HOSTNAME_FULL"]
 
@@ -277,4 +405,13 @@ func getFileSystems() (string, error) {
 	}
 
 	return string(buff), nil
+}
+
+func getCpuInfos() (string, error) {
+	buff, err := ioutil.ReadFile("/proc/cpuinfo")
+	if err != nil {
+		return "", err
+	}
+
+	return string(buff), err
 }
