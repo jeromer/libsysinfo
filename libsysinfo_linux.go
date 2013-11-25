@@ -31,6 +31,8 @@ var (
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 )
 
+// ----
+
 type CpuInfo struct {
 	Processor      string
 	VendorId       string
@@ -65,13 +67,7 @@ type LsbReleaseInfo struct {
 	Release       string
 }
 
-type LibSysInfoErr struct {
-	Msg string
-}
-
-func (e LibSysInfoErr) Error() string {
-	return e.Msg
-}
+// ----
 
 func Hostname() (string, error) {
 	llv := &lazyLoadedValue{
@@ -176,6 +172,8 @@ func CpuInfos() ([]CpuInfo, error) {
 
 	return processCpuInfos(buff), nil
 }
+
+// ----
 
 func lsbReleaseItem(k string, lsbItem string) (string, error) {
 	proc := func(lsb string) (string, error) {
@@ -342,6 +340,8 @@ func processCpuInfos(buff string) []CpuInfo {
 	return cpuInfos
 }
 
+// ----
+
 func getFullHostname() (string, error) {
 	cacheKey := cacheKeys["HOSTNAME_FULL"]
 
@@ -414,4 +414,14 @@ func getCpuInfos() (string, error) {
 	}
 
 	return string(buff), err
+}
+
+// ----
+
+type LibSysInfoErr struct {
+	Msg string
+}
+
+func (e LibSysInfoErr) Error() string {
+	return e.Msg
 }
