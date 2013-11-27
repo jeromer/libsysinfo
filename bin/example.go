@@ -10,6 +10,7 @@ func main() {
 	dumpLsbRelease()
 	dumpFileSystems()
 	dumpCpuInfos()
+	dumpNetworkInterfaces()
 }
 
 func dumpSimple() {
@@ -93,5 +94,25 @@ func dumpCpuInfos() {
 		fmt.Printf(format, "ClflushSize", cpu.ClflushSize)
 		fmt.Printf(format, "CacheAlignment", cpu.CacheAlignment)
 		fmt.Printf(format, "AddressSizes", cpu.AddressSizes)
+	}
+}
+
+func dumpNetworkInterfaces() {
+	ifaces, err := libsysinfo.NetworkInterfaces()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Printf("\nNetwork interfaces\n------------------\n")
+	format := "- %-14s : %s\n"
+
+	for _, nif := range ifaces {
+		fmt.Printf(format, "Name", nif.Name)
+		fmt.Printf(format, "V4Addr", nif.V4Addr)
+		fmt.Printf(format, "V6Addr", nif.V6Addr)
+		fmt.Printf(format, "MacAddr", nif.MacAddr)
+		fmt.Printf(format, "BroadcastAddr", nif.BroadcastAddr)
+		fmt.Printf(format, "NetMask", nif.NetMask)
+		fmt.Println()
 	}
 }

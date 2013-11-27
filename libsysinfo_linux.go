@@ -4,6 +4,7 @@ package libsysinfo
 
 import (
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -24,11 +25,14 @@ var (
 		"FILE_SYSTEMS":         "filesystems",
 	}
 
-	globalCache     = newCachedValues(len(cacheKeys))
-	fileSystemCache []string
-	cpuInfoCache    []CpuInfo
+	globalCache           = newCachedValues(len(cacheKeys))
+	fileSystemCache       []string
+	cpuInfoCache          []CpuInfo
+	networkInterfaceCache []NetworkInterface
 
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
+	ErrNoNetIfaceFound    = &LibSysInfoErr{"No network interface found"}
+	ErrIfConfigNotFound   = &LibSysInfoErr{"No ifconfig command found"}
 )
 
 // ----
@@ -65,6 +69,15 @@ type LsbReleaseInfo struct {
 	Description   string
 	DistributorId string
 	Release       string
+}
+
+type NetworkInterface struct {
+	Name          string
+	V4Addr        string
+	V6Addr        string
+	MacAddr       string
+	BroadcastAddr string
+	NetMask       string
 }
 
 // ----
@@ -171,6 +184,85 @@ func CpuInfos() ([]CpuInfo, error) {
 	}
 
 	return processCpuInfos(buff), nil
+}
+
+func NetworkInterfaces() ([]NetworkInterface, error) {
+	// XXX : switch to a cgo/iotctl based implementation
+	// XXX : parsing ifconfig's result is a PITA
+
+	if len(networkInterfaceCache) > 0 {
+		return networkInterfaceCache, nil
+	}
+
+	var ifaces []NetworkInterface
+	devices, err := findNetworkDevices()
+	if err != nil {
+		return []NetworkInterface{}, err
+	}
+	if len(devices) <= 0 {
+		return ifaces, ErrNoNetIfaceFound
+	}
+
+	ifConfig, err := findIfconfig()
+	if err != nil {
+		return ifaces, err
+	}
+
+	for _, d := range devices {
+		out, err := exec.Command(ifConfig, d).Output()
+		if err != nil {
+			return ifaces, err
+		}
+
+		ifaces = append(ifaces, processIfconfigOutput(d, string(out)))
+	}
+
+	return ifaces, nil
+}
+
+func findNetworkDevices() ([]string, error) {
+	var devs []string
+
+	f, err := os.Open("/sys/class/net/")
+	if err != nil {
+		return devs, err
+	}
+	defer f.Close()
+
+	allNames := -1
+	names, err := f.Readdirnames(allNames)
+	if err != nil {
+		return devs, err
+	}
+
+	if len(names) <= 0 {
+		return names, ErrNoNetIfaceFound
+	}
+
+	return names, nil
+}
+
+func findIfconfig() (string, error) {
+	possiblePaths := []string{
+		"/sbin/ifconfig",
+		"/bin/ifconfig",
+		"/usr/sbin/ifconfig",
+	}
+
+	var f *os.File
+	var err error
+
+	for _, path := range possiblePaths {
+		f, err = os.Open(path)
+		if os.IsNotExist(err) {
+			continue
+		}
+		defer f.Close()
+
+		return path, nil
+	}
+
+	return "", ErrIfConfigNotFound
 }
 
 // ----
@@ -338,6 +430,71 @@ func processCpuInfos(buff string) []CpuInfo {
 	}
 
 	return cpuInfos
+}
+
+func processIfconfigOutput(device string, out string) NetworkInterface {
+	// XXX : this is so horrible ...
+	const hwaddr = "HWaddr"
+	var nif NetworkInterface
+
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		if len(line) <= 0 {
+			continue
+		}
+		isFirstLine := (line[0] != ' ')
+
+		if isFirstLine && strings.Contains(line, hwaddr) {
+			parts := strings.Split(line, hwaddr)
+			nif.MacAddr = strings.TrimSpace(parts[len(parts)-1])
+			continue
+		}
+
+		line = strings.TrimSpace(line)
+
+		// i => inet or inet6
+		if len(line) <= 0 || line[0] != 'i' {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) <= 0 {
+			continue
+		}
+
+		if fields[0] == "inet" {
+			for _, f := range fields[1:] {
+				if f[0] == 'a' {
+					nif.V4Addr = strings.TrimPrefix(f, "addr:")
+					continue
+				}
+
+				if f[0] == 'B' {
+					nif.BroadcastAddr = strings.TrimPrefix(f, "Bcast:")
+					continue
+				}
+
+				if f[0] == 'M' {
+					nif.NetMask = strings.TrimPrefix(f, "Mask:")
+					continue
+				}
+			}
+
+			continue
+		}
+
+		if fields[0] == "inet6" {
+			if len(fields) < 3 {
+				continue
+			}
+
+			nif.V6Addr = fields[2]
+		}
+	}
+
+	nif.Name = device
+
+	return nif
 }
 
 // ----
