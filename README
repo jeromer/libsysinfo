@@ -1,0 +1,85 @@
+libsysinfo
+==========
+
+This library extracts useful informations from a system such as:
+
+- Hostname
+- Domain
+- Fqdn
+- HostId
+- Lsb release informations
+- Available filesystems
+- Cpu informations
+- Network interfaces
+
+Supported systems
+-----------------
+
+Linux. Any contribution is welcome to support more systems
+
+Usage
+-----
+
+The code shoule be self explanatory. However you may find interesting to run
+the ./bin/example.go program so you can the result will look like the
+following:
+
+    Hostname        : wheezy64-puppet3
+    Domain          : vagrantup.com
+    Fqdn            : wheezy64-puppet3.vagrantup.com
+    HostId          : 007f0101
+
+    LsbRelease
+    ---------
+    - codename       : wheezy
+    - release        : 7.0
+    - description    : debian gnu/linux 7.0 (wheezy)
+    - distributor Id : debian
+
+    FileSystems
+    ---------
+    - ext3
+    - ext2
+
+    CpuInfos
+    ---------
+    - Processor      : 0
+    - VendorId       : GenuineIntel
+    - CpuFamily      : 6
+    - Model          : 42
+    - ModelName      : Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+    - Stepping       : 7
+    - CPUMHz         : 2685.729
+    - CacheSize      : 6144
+    - CacheSizeUnit  : KB
+    - PhysicalId     :
+    - Siblings       :
+    - CoreId         :
+    - CpuCores       :
+    - ApicId         :
+    - InitialApicId  :
+    - Fpu            : yes
+    - FpuException   : yes
+    - CpuIdLevel     : 5
+    - Wp             : yes
+    - Flags          : [fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx rdtscp lm constant_tsc up rep_good nopl pni monitor ssse3 lahf_lm]
+    - Bogomips       : 5371.45
+    - ClflushSize    : 64
+    - CacheAlignment : 64
+    - AddressSizes   : 36 bits physical, 48 bits virtual
+
+    Network interfaces
+    ------------------
+    - Name           : lo
+    - V4Addr         : 127.0.0.1
+    - V6Addr         : ::1/128
+    - MacAddr        :
+    - BroadcastAddr  :
+    - NetMask        : 255.0.0.0
+
+    - Name           : eth0
+    - V4Addr         : 10.0.2.15
+    - V6Addr         : fe80::a00:27ff:feb3:2723/64
+    - MacAddr        : 08:00:27:b3:27:23
+    - BroadcastAddr  : 10.0.2.255
+    - NetMask        : 255.255.255.0
