@@ -12,3 +12,12 @@ func atoi(a string) int {
 
 	return i
 }
+
+func atof64(s string) float64 {
+	f, err := strconv.ParseFloat(s, 32)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return f
+}
