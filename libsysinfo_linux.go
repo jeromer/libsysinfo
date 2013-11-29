@@ -220,6 +220,8 @@ func NetworkInterfaces() ([]NetworkInterface, error) {
 	return ifaces, nil
 }
 
+// ----
+
 func findNetworkDevices() ([]string, error) {
 	var devs []string
 
@@ -264,8 +266,6 @@ func findIfconfig() (string, error) {
 
 	return "", ErrIfConfigNotFound
 }
-
-// ----
 
 func lsbReleaseItem(k string, lsbItem string) (string, error) {
 	proc := func(lsb string) (string, error) {
