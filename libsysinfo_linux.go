@@ -82,13 +82,13 @@ type NetworkInterface struct {
 }
 
 type Meminfos struct {
-	MemTotal   string
-	MemFree    string
-	Buffers    string
-	Cached     string
-	SwapCached string
-	SwapTotal  string
-	SwapFree   string
+	MemTotal   int
+	MemFree    int
+	Buffers    int
+	Cached     int
+	SwapCached int
+	SwapTotal  int
+	SwapFree   int
 
 	// The unit used in /proc/meminfo, lowered. Most likely always "kb"
 	UnitUsed string
@@ -235,7 +235,7 @@ func NetworkInterfaces() ([]NetworkInterface, error) {
 }
 
 func MemInfos() (Meminfos, error) {
-	if memInfoCache.MemTotal != "" {
+	if memInfoCache.MemTotal > 0 {
 		return memInfoCache, nil
 	}
 
@@ -553,19 +553,19 @@ func processMemInfos(buff string) Meminfos {
 
 		switch k {
 		case "memtotal":
-			mi.MemTotal = v
+			mi.MemTotal = atoi(v)
 		case "memfree":
-			mi.MemFree = v
+			mi.MemFree = atoi(v)
 		case "buffers":
-			mi.Buffers = v
+			mi.Buffers = atoi(v)
 		case "cached":
-			mi.Cached = v
+			mi.Cached = atoi(v)
 		case "swapcached":
-			mi.SwapCached = v
+			mi.SwapCached = atoi(v)
 		case "swaptotal":
-			mi.SwapTotal = v
+			mi.SwapTotal = atoi(v)
 		case "swapfree":
-			mi.SwapFree = v
+			mi.SwapFree = atoi(v)
 		default:
 			continue
 		}

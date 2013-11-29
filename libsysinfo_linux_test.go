@@ -413,13 +413,13 @@ DirectMap2M:      221184 kB
 	obtained := processMemInfos(fixtures)
 
 	expected := Meminfos{
-		MemTotal:   "250856",
-		MemFree:    "152536",
-		Buffers:    "4872",
-		Cached:     "61592",
-		SwapCached: "0",
-		SwapTotal:  "466940",
-		SwapFree:   "466940",
+		MemTotal:   250856,
+		MemFree:    152536,
+		Buffers:    4872,
+		Cached:     61592,
+		SwapCached: 0,
+		SwapTotal:  466940,
+		SwapFree:   466940,
 		UnitUsed:   "kb",
 	}
 
