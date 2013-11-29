@@ -44,24 +44,24 @@ type CpuInfo struct {
 	CpuFamily      string
 	Model          string
 	ModelName      string
-	Stepping       string
-	CPUMHz         string
-	CacheSize      string
+	Stepping       int
+	CPUMHz         float64
+	CacheSize      int
 	CacheSizeUnit  string
 	PhysicalId     string
-	Siblings       string
+	Siblings       int
 	CoreId         string
-	CpuCores       string
+	CpuCores       int
 	ApicId         string
 	InitialApicId  string
 	Fpu            string
 	FpuException   string
-	CpuIdLevel     string
+	CpuIdLevel     int
 	Wp             string
 	Flags          []string
-	Bogomips       string
-	ClflushSize    string
-	CacheAlignment string
+	Bogomips       float64
+	ClflushSize    int
+	CacheAlignment int
 	AddressSizes   string
 }
 
@@ -413,21 +413,21 @@ func processCpuInfos(buff string) []CpuInfo {
 			case "model name":
 				tmp.ModelName = v
 			case "stepping":
-				tmp.Stepping = v
+				tmp.Stepping = atoi(v)
 			case "cpu mhz":
-				tmp.CPUMHz = v
+				tmp.CPUMHz = atof64(v)
 			case "cache size":
 				cacheSize := strings.Split(v, " ")
-				tmp.CacheSize = cacheSize[0]
+				tmp.CacheSize = atoi(cacheSize[0])
 				tmp.CacheSizeUnit = cacheSize[1]
 			case "physical id":
 				tmp.PhysicalId = v
 			case "siblings":
-				tmp.Siblings = v
+				tmp.Siblings = atoi(v)
 			case "core id":
 				tmp.CoreId = v
 			case "cpu cores":
-				tmp.CpuCores = v
+				tmp.CpuCores = atoi(v)
 			case "apicid":
 				tmp.ApicId = v
 			case "initial apicid":
@@ -437,17 +437,17 @@ func processCpuInfos(buff string) []CpuInfo {
 			case "fpu_exception":
 				tmp.FpuException = v
 			case "cpuid level":
-				tmp.CpuIdLevel = v
+				tmp.CpuIdLevel = atoi(v)
 			case "wp":
 				tmp.Wp = v
 			case "flags":
 				tmp.Flags = strings.Split(v, " ")
 			case "bogomips":
-				tmp.Bogomips = v
+				tmp.Bogomips = atof64(v)
 			case "clflush size":
-				tmp.ClflushSize = v
+				tmp.ClflushSize = atoi(v)
 			case "cache_alignment":
-				tmp.CacheAlignment = v
+				tmp.CacheAlignment = atoi(v)
 			case "address sizes":
 				tmp.AddressSizes = v
 			default:
