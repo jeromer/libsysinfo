@@ -29,6 +29,7 @@ var (
 	fileSystemCache       []string
 	cpuInfoCache          []CpuInfo
 	networkInterfaceCache []NetworkInterface
+	memInfoCache          Meminfos
 
 	ErrDomainNameNotFound = &LibSysInfoErr{"Domain name not found"}
 	ErrNoNetIfaceFound    = &LibSysInfoErr{"No network interface found"}
@@ -78,6 +79,19 @@ type NetworkInterface struct {
 	MacAddr       string
 	BroadcastAddr string
 	NetMask       string
+}
+
+type Meminfos struct {
+	MemTotal   string
+	MemFree    string
+	Buffers    string
+	Cached     string
+	SwapCached string
+	SwapTotal  string
+	SwapFree   string
+
+	// The unit used in /proc/meminfo, lowered. Most likely always "kb"
+	UnitUsed string
 }
 
 // ----
@@ -218,6 +232,19 @@ func NetworkInterfaces() ([]NetworkInterface, error) {
 	}
 
 	return ifaces, nil
+}
+
+func MemInfos() (Meminfos, error) {
+	if memInfoCache.MemTotal != "" {
+		return memInfoCache, nil
+	}
+
+	buff, err := getMemInfos()
+	if err != nil {
+		return Meminfos{}, err
+	}
+
+	return processMemInfos(buff), nil
 }
 
 // ----
@@ -497,6 +524,56 @@ func processIfconfigOutput(device string, out string) NetworkInterface {
 	return nif
 }
 
+func processMemInfos(buff string) Meminfos {
+	var parts []string
+	var k, v, u string
+	var mi Meminfos
+
+	lines := strings.Split(buff, "\n")
+
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		parts = strings.Fields(line)
+		if len(parts) != 3 {
+			continue
+		}
+
+		k = strings.ToLower(strings.TrimSpace(strings.Trim(parts[0], ":")))
+		v = strings.TrimSpace(parts[1])
+		if v == "" {
+			continue
+		}
+		if mi.UnitUsed == "" {
+			u = strings.TrimSpace(parts[2])
+			mi.UnitUsed = strings.ToLower(u)
+		}
+
+		switch k {
+		case "memtotal":
+			mi.MemTotal = v
+		case "memfree":
+			mi.MemFree = v
+		case "buffers":
+			mi.Buffers = v
+		case "cached":
+			mi.Cached = v
+		case "swapcached":
+			mi.SwapCached = v
+		case "swaptotal":
+			mi.SwapTotal = v
+		case "swapfree":
+			mi.SwapFree = v
+		default:
+			continue
+		}
+	}
+
+	return mi
+}
+
 // ----
 
 func getFullHostname() (string, error) {
@@ -566,6 +643,15 @@ func getFileSystems() (string, error) {
 
 func getCpuInfos() (string, error) {
 	buff, err := ioutil.ReadFile("/proc/cpuinfo")
+	if err != nil {
+		return "", err
+	}
+
+	return string(buff), err
+}
+
+func getMemInfos() (string, error) {
+	buff, err := ioutil.ReadFile("/proc/meminfo")
 	if err != nil {
 		return "", err
 	}

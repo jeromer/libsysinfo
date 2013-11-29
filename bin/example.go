@@ -11,6 +11,7 @@ func main() {
 	dumpFileSystems()
 	dumpCpuInfos()
 	dumpNetworkInterfaces()
+	dumpMemInfos()
 }
 
 func dumpSimple() {
@@ -115,4 +116,22 @@ func dumpNetworkInterfaces() {
 		fmt.Printf(format, "NetMask", nif.NetMask)
 		fmt.Println()
 	}
+}
+
+func dumpMemInfos() {
+	mi, err := libsysinfo.MemInfos()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nMemInfos\n---------\n")
+	format := "- %-14s : %s %s\n"
+
+	fmt.Printf(format, "MemTotal", mi.MemTotal, mi.UnitUsed)
+	fmt.Printf(format, "MemFree", mi.MemFree, mi.UnitUsed)
+	fmt.Printf(format, "Buffers", mi.Buffers, mi.UnitUsed)
+	fmt.Printf(format, "Cached", mi.Cached, mi.UnitUsed)
+	fmt.Printf(format, "SwapCached", mi.SwapCached, mi.UnitUsed)
+	fmt.Printf(format, "SwapTotal", mi.SwapTotal, mi.UnitUsed)
+	fmt.Printf(format, "SwapFree", mi.SwapFree, mi.UnitUsed)
 }

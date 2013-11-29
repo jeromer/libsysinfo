@@ -11,6 +11,7 @@ This library extracts useful informations from a system such as:
 - Available filesystems
 - Cpu informations
 - Network interfaces
+- Memory informations
 
 Supported systems
 -----------------
@@ -83,3 +84,13 @@ following:
     - MacAddr        : 08:00:27:b3:27:23
     - BroadcastAddr  : 10.0.2.255
     - NetMask        : 255.255.255.0
+
+    MemInfos
+    ---------
+    - MemTotal       : 250856 kb
+    - MemFree        : 145336 kb
+    - Buffers        : 5248 kb
+    - Cached         : 63776 kb
+    - SwapCached     : 0 kb
+    - SwapTotal      : 466940 kb
+    - SwapFree       : 466940 kb

@@ -364,3 +364,64 @@ eth0      Link encap:Ethernet  HWaddr 08:00:27:b3:27:23
 
 	c.Assert(obtained, DeepEquals, expected)
 }
+
+func (s *LibSysInfoTestSuite) TestProcessMemInfos(c *C) {
+	fixtures := `
+MemTotal:         250856 kB
+MemFree:          152536 kB
+Buffers:            4872 kB
+Cached:            61592 kB
+SwapCached:            0 kB
+Active:            44096 kB
+Inactive:          35240 kB
+Active(anon):      12928 kB
+Inactive(anon):      164 kB
+Active(file):      31168 kB
+Inactive(file):    35076 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:        466940 kB
+SwapFree:         466940 kB
+Dirty:                 0 kB
+Writeback:             0 kB
+AnonPages:         12876 kB
+Mapped:             6024 kB
+Shmem:               220 kB
+Slab:              11660 kB
+SReclaimable:       4980 kB
+SUnreclaim:         6680 kB
+KernelStack:         552 kB
+PageTables:         1784 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:      592368 kB
+Committed_AS:      53608 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:       17448 kB
+VmallocChunk:   34359719927 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:       40896 kB
+DirectMap2M:      221184 kB
+`
+	obtained := processMemInfos(fixtures)
+
+	expected := Meminfos{
+		MemTotal:   "250856",
+		MemFree:    "152536",
+		Buffers:    "4872",
+		Cached:     "61592",
+		SwapCached: "0",
+		SwapTotal:  "466940",
+		SwapFree:   "466940",
+		UnitUsed:   "kb",
+	}
+
+	c.Assert(obtained, DeepEquals, expected)
+}
