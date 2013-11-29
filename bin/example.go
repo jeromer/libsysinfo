@@ -68,33 +68,37 @@ func dumpCpuInfos() {
 	}
 
 	fmt.Printf("\nCpuInfos\n---------\n")
-	format := "- %-14s : %s\n"
+
+	commonFormat := "- %-14s : "
+	strFormat := commonFormat + "%s\n"
+	intFormat := commonFormat + "%d\n"
+	floatFormat := commonFormat + "%.3f\n"
 
 	for _, cpu := range cpuInfos {
-		fmt.Printf(format, "Processor", cpu.Processor)
-		fmt.Printf(format, "VendorId", cpu.VendorId)
-		fmt.Printf(format, "CpuFamily", cpu.CpuFamily)
-		fmt.Printf(format, "Model", cpu.Model)
-		fmt.Printf(format, "ModelName", cpu.ModelName)
-		fmt.Printf(format, "Stepping", cpu.Stepping)
-		fmt.Printf(format, "CPUMHz", cpu.CPUMHz)
-		fmt.Printf(format, "CacheSize", cpu.CacheSize)
-		fmt.Printf(format, "CacheSizeUnit", cpu.CacheSizeUnit)
-		fmt.Printf(format, "PhysicalId", cpu.PhysicalId)
-		fmt.Printf(format, "Siblings", cpu.Siblings)
-		fmt.Printf(format, "CoreId", cpu.CoreId)
-		fmt.Printf(format, "CpuCores", cpu.CpuCores)
-		fmt.Printf(format, "ApicId", cpu.ApicId)
-		fmt.Printf(format, "InitialApicId", cpu.InitialApicId)
-		fmt.Printf(format, "Fpu", cpu.Fpu)
-		fmt.Printf(format, "FpuException", cpu.FpuException)
-		fmt.Printf(format, "CpuIdLevel", cpu.CpuIdLevel)
-		fmt.Printf(format, "Wp", cpu.Wp)
-		fmt.Printf(format, "Flags", cpu.Flags)
-		fmt.Printf(format, "Bogomips", cpu.Bogomips)
-		fmt.Printf(format, "ClflushSize", cpu.ClflushSize)
-		fmt.Printf(format, "CacheAlignment", cpu.CacheAlignment)
-		fmt.Printf(format, "AddressSizes", cpu.AddressSizes)
+		fmt.Printf(strFormat, "Processor", cpu.Processor)
+		fmt.Printf(strFormat, "VendorId", cpu.VendorId)
+		fmt.Printf(strFormat, "CpuFamily", cpu.CpuFamily)
+		fmt.Printf(strFormat, "Model", cpu.Model)
+		fmt.Printf(strFormat, "ModelName", cpu.ModelName)
+		fmt.Printf(intFormat, "Stepping", cpu.Stepping)
+		fmt.Printf(floatFormat, "CPUMHz", cpu.CPUMHz)
+		fmt.Printf(intFormat, "CacheSize", cpu.CacheSize)
+		fmt.Printf(strFormat, "CacheSizeUnit", cpu.CacheSizeUnit)
+		fmt.Printf(strFormat, "PhysicalId", cpu.PhysicalId)
+		fmt.Printf(intFormat, "Siblings", cpu.Siblings)
+		fmt.Printf(strFormat, "CoreId", cpu.CoreId)
+		fmt.Printf(intFormat, "CpuCores", cpu.CpuCores)
+		fmt.Printf(strFormat, "ApicId", cpu.ApicId)
+		fmt.Printf(strFormat, "InitialApicId", cpu.InitialApicId)
+		fmt.Printf(strFormat, "Fpu", cpu.Fpu)
+		fmt.Printf(strFormat, "FpuException", cpu.FpuException)
+		fmt.Printf(intFormat, "CpuIdLevel", cpu.CpuIdLevel)
+		fmt.Printf(strFormat, "Wp", cpu.Wp)
+		fmt.Printf(strFormat, "Flags", cpu.Flags)
+		fmt.Printf(floatFormat, "Bogomips", cpu.Bogomips)
+		fmt.Printf(intFormat, "ClflushSize", cpu.ClflushSize)
+		fmt.Printf(intFormat, "CacheAlignment", cpu.CacheAlignment)
+		fmt.Printf(strFormat, "AddressSizes", cpu.AddressSizes)
 	}
 }
 
@@ -125,7 +129,7 @@ func dumpMemInfos() {
 	}
 
 	fmt.Printf("\nMemInfos\n---------\n")
-	format := "- %-14s : %s %s\n"
+	format := "- %-14s : %d %s\n"
 
 	fmt.Printf(format, "MemTotal", mi.MemTotal, mi.UnitUsed)
 	fmt.Printf(format, "MemFree", mi.MemFree, mi.UnitUsed)
