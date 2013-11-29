@@ -25,7 +25,7 @@ var (
 		"FILE_SYSTEMS":         "filesystems",
 	}
 
-	globalCache           = newCachedValues(len(cacheKeys))
+	simpleValuesCache     = newCachedValues(len(cacheKeys))
 	fileSystemCache       []string
 	cpuInfoCache          []CpuInfo
 	networkInterfaceCache []NetworkInterface
@@ -101,7 +101,7 @@ func Hostname() (string, error) {
 		CacheKey:    cacheKeys["HOSTNAME"],
 		Fetcher:     getFullHostname,
 		Processor:   processHostname,
-		CacheBucket: globalCache,
+		CacheBucket: simpleValuesCache,
 	}
 
 	return llv.run()
@@ -112,7 +112,7 @@ func Domain() (string, error) {
 		CacheKey:    cacheKeys["DOMAIN_NAME"],
 		Fetcher:     getFullHostname,
 		Processor:   processDomainName,
-		CacheBucket: globalCache,
+		CacheBucket: simpleValuesCache,
 	}
 
 	return llv.run()
@@ -127,7 +127,7 @@ func Fqdn() (string, error) {
 		CacheKey:    cacheKeys["FQDN"],
 		Fetcher:     getFullHostname,
 		Processor:   fqdn,
-		CacheBucket: globalCache,
+		CacheBucket: simpleValuesCache,
 	}
 
 	return llv.run()
@@ -168,7 +168,7 @@ func HostId() (string, error) {
 		CacheKey:    cacheKeys["HOST_ID"],
 		Fetcher:     getHostId,
 		Processor:   processHostId,
-		CacheBucket: globalCache,
+		CacheBucket: simpleValuesCache,
 	}
 
 	return llv.run()
@@ -303,7 +303,7 @@ func lsbReleaseItem(k string, lsbItem string) (string, error) {
 		CacheKey:    cacheKeys[k],
 		Fetcher:     getLsbRelease,
 		Processor:   proc,
-		CacheBucket: globalCache,
+		CacheBucket: simpleValuesCache,
 	}
 
 	return llv.run()
@@ -579,7 +579,7 @@ func processMemInfos(buff string) Meminfos {
 func getFullHostname() (string, error) {
 	cacheKey := cacheKeys["HOSTNAME_FULL"]
 
-	hf, exists := globalCache.Exists(cacheKey)
+	hf, exists := simpleValuesCache.Exists(cacheKey)
 	if exists {
 		return hf, nil
 	}
@@ -597,7 +597,7 @@ func getFullHostname() (string, error) {
 		hf = hf[:pos]
 	}
 
-	globalCache.Set(cacheKey, hf)
+	simpleValuesCache.Set(cacheKey, hf)
 
 	return hf, nil
 }
@@ -605,7 +605,7 @@ func getFullHostname() (string, error) {
 func getLsbRelease() (string, error) {
 	cacheKey := cacheKeys["LSB_FULL"]
 
-	lsb, exists := globalCache.Exists(cacheKey)
+	lsb, exists := simpleValuesCache.Exists(cacheKey)
 	if exists {
 		return lsb, nil
 	}
@@ -617,7 +617,7 @@ func getLsbRelease() (string, error) {
 
 	lsb = string(out)
 
-	globalCache.Set(cacheKey, lsb)
+	simpleValuesCache.Set(cacheKey, lsb)
 
 	return lsb, nil
 }
