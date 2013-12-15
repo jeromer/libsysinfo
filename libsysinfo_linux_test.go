@@ -2,6 +2,8 @@ package libsysinfo
 
 import (
 	. "launchpad.net/gocheck"
+	"runtime"
+	"strings"
 )
 
 type LibSysInfoTestSuite struct{}
@@ -424,4 +426,11 @@ DirectMap2M:      221184 kB
 	}
 
 	c.Assert(obtained, DeepEquals, expected)
+}
+
+func (s *LibSysInfoTestSuite) TestOS(c *C) {
+	obtained := OS()
+	expected := strings.ToLower(runtime.GOOS)
+
+	c.Assert(obtained, Equals, expected)
 }

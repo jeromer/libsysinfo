@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -245,6 +246,10 @@ func MemInfos() (Meminfos, error) {
 	}
 
 	return processMemInfos(buff), nil
+}
+
+func OS() string {
+	return strings.ToLower(runtime.GOOS)
 }
 
 // ----

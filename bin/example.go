@@ -15,6 +15,8 @@ func main() {
 }
 
 func dumpSimple() {
+	format := "%-15s : %s\n"
+
 	type F func() (string, error)
 	funs := map[string]F{
 		"Hostname": libsysinfo.Hostname,
@@ -31,8 +33,10 @@ func dumpSimple() {
 			panic(err.Error())
 		}
 
-		fmt.Printf("%-15s : %s\n", legend, out)
+		fmt.Printf(format, legend, out)
 	}
+
+	fmt.Printf(format, "OS", libsysinfo.OS())
 }
 
 func dumpLsbRelease() {
